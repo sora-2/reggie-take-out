@@ -10,6 +10,8 @@ import com.itheima.reggie.mapper.DishMapper;
 import com.itheima.reggie.mapper.SetmealMapper;
 import com.itheima.reggie.service.CategoryService;
 import com.itheima.reggie.mapper.CategoryMapper;
+import com.itheima.reggie.service.DishService;
+import com.itheima.reggie.service.SetmealService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,23 +25,23 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     implements CategoryService{
 
     @Autowired
-    private DishMapper dishMapper;
+    private DishService dishService;
 
     @Autowired
-    private SetmealMapper setmealMapper;
+    private SetmealService setmealService;
 
     @Override
     public void remove(Long id) {
         LambdaQueryWrapper<Dish> dishLambdaQueryWrapper=new LambdaQueryWrapper<>();
         dishLambdaQueryWrapper.eq(Dish::getCategoryId,id);
-        Long countDish = dishMapper.selectCount(dishLambdaQueryWrapper);
+        int countDish = (int) dishService.count(dishLambdaQueryWrapper);
         if (countDish>0){
             throw new CustomException("当前分类关联菜品，不可删除");
         }
 
         LambdaQueryWrapper<Setmeal> setmealLambdaQueryWrapper=new LambdaQueryWrapper<>();
         setmealLambdaQueryWrapper.eq(Setmeal::getCategoryId,id);
-        Long countSetmeal = setmealMapper.selectCount(setmealLambdaQueryWrapper);
+        int countSetmeal = (int) setmealService.count(setmealLambdaQueryWrapper);
         if (countSetmeal>0){
             throw new CustomException("当前分类关联套餐，不可删除");
         }

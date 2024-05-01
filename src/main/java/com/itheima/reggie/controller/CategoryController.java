@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @Slf4j
 @RequestMapping(("/category"))
@@ -25,7 +27,7 @@ public class CategoryController {
     @Autowired
     private SetmealService setmealService;
 
-    @PostMapping("/")
+    @PostMapping
     public R<String> insert(@RequestBody Category category){
         categoryService.save(category);
         return R.success("新增分类成功");
@@ -41,9 +43,9 @@ public class CategoryController {
     }
 
     @DeleteMapping
-    public R<String> delete(Long id){
+    public R<String> delete(Long ids){
 
-        categoryService.remove(id);
+        categoryService.remove(ids);
 
         return R.success("成功删除分类");
     }
@@ -53,5 +55,15 @@ public class CategoryController {
         log.info("Update category {}", category);
         categoryService.updateById(category);
         return R.success("分类信息修改成功");
+    }
+
+    @GetMapping("list")
+    public R<List<Category>> list(Category category){
+        LambdaQueryWrapper<Category> query = new LambdaQueryWrapper<>();
+
+        query.eq(category.getType()!=null,Category::getType,category.getType());
+        query.orderByAsc(Category::getSort).orderByDesc(Category::getUpdateTime);
+        List<Category> list = categoryService.list(query);
+        return R.success(list);
     }
 }
